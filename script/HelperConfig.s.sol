@@ -50,7 +50,7 @@ contract HelperConfig is Script {
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         vm.startBroadcast();
         ERC20Mock link = new ERC20Mock();
-        MockOracle oracle = new MockOracle();
+        MockOracle oracle = new MockOracle(address(link));
         vm.stopBroadcast();
         return NetworkConfig({
             _link: address(link),
