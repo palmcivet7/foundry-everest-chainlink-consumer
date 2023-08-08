@@ -9,12 +9,12 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 contract DeployEverestConsumer is Script {
     function run() external returns (EverestConsumer, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
-        (address link, address _oracle, string _jobId, uint256 _oraclePayment, string _signUpURL) =
+        (address _link, address _oracle, string memory _jobId, uint256 _oraclePayment, string memory _signUpURL) =
             helperConfig.activeNetworkConfig();
 
         vm.startBroadcast();
         EverestConsumer everestConsumer = new EverestConsumer(
-            link, _oracle, jobId, _oraclePayment, _signUpURL
+            _link, _oracle, _jobId, _oraclePayment, _signUpURL
         );
         vm.stopBroadcast();
 
