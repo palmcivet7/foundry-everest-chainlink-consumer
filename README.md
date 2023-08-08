@@ -1,66 +1,83 @@
-## Foundry
+# foundry-everest-chainlink-consumer
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This project is a fork of [everest-chainlink-consumer](https://github.com/EverID/everest-chainlink-consumer) restructured in Foundry.
 
-Foundry consists of:
+## Original README
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+Consumer contract & chainlink job & external adapter for KYC data.
 
-## Documentation
+### 0. Required fields
 
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```yaml
+externalJobId: "14f84981-6fac-426a-bda2-992cbf47d2cd", // gen by the chainlink node
+oracleAddr: "0xB9756312523826A566e222a34793E414A81c88E1", // Operator.sol
+payment: "100000000000000000", // job/job.toml/minContractPaymentLinkJuels
+linktoken: "0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39" // LinkTokenInterface.sol
 ```
 
-### Test
+### 1. Contracts deployments
 
-```shell
-$ forge test
+In this example we will use metamask & remix.
+
+- Open everest-chainlink-consumer/contracts, copy LinkTokenInterface.sol, Operator.sol, EverestConsumer.sol files to remix, choose polygon network.
+- Compile LinkTokenInterface.sol and add it using "linktoken" address.
+- Compile Operator.sol and add it using "oracleAddr".
+- Compile EverestConsumer.sol and deploy it using the next params:
+
+```solidity
+constructor(
+    address _link, // "linktoken"
+    address _oracle, // "oracleAddr"
+    string memory _jobId, // "externalJobId"
+    uint256 _oraclePayment, // "payment"
+    string memory _signUpURL // desired signUp URL
+)
 ```
 
-### Format
+### 2. How to make a request
 
-```shell
-$ forge fmt
+- Allow EverestConsumer contract spend your link tokens:
+
+```solidity
+LinkTokenInterface.approve(
+    address spender, // everest consumer contract
+    uint256 value // more than "payment"
+)
 ```
 
-### Gas Snapshots
+- Request the status (this method also makes transferFrom):
 
-```shell
-$ forge snapshot
+```solidity
+EverestConsumer.requestStatus(
+    address _revealee // desired address
+)
 ```
 
-### Anvil
+- Retrieve your latest requestId calling this method:
 
-```shell
-$ anvil
+```solidity
+EverestConsumer.getLatestSentRequestId()
 ```
 
-### Deploy
+- Wait about 2-3 minutes before the request will be fulfilled.
+- You can get any request by ID or the latest fulfilled request by the address using the following methods:
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```solidity
+EverestConsumer.getRequest(bytes32 _requestId)
+EverestConsumer.getLatestFulfilledRequest(address _revealee)
 ```
 
-### Cast
+- If getRequest method returns isFulfilled=false for 5 minutes, you can cancel your request and return funds using:
 
-```shell
-$ cast <subcommand>
+```solidity
+EverestConsumer.cancelRequest(bytes32 _requestId)
 ```
 
-### Help
+### 3. Withdraw paid link tokens
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+- To withdraw tokens we need an ownership of the operator (oracle) contract.
+- Call withdraw function:
+
+```solidity
+Operator.withdraw(address recipient, uint256 amount)
 ```
