@@ -55,7 +55,7 @@ contract HelperConfig is Script {
         return NetworkConfig({
             _link: address(link),
             _oracle: address(oracle),
-            _jobId: "14f849816fac426abda2992cbf47d2cd", // reverts if string.length != 32
+            _jobId: "509e8dd8de054d3f918640ab0a2b77d8",
             _oraclePayment: 100000000000000000,
             _signUpURL: "https://wallet.everest.org"
         });
