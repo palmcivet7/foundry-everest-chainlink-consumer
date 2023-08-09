@@ -7,7 +7,8 @@ import {DeployEverestConsumer} from "../../script/DeployEverestConsumer.s.sol";
 import {EverestConsumer} from "../../src/EverestConsumer.sol";
 import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
-import {ERC20Mock} from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import {LinkToken} from "../mocks/LinkToken.sol";
+import {IEverestConsumer} from "../../src/interfaces/IEverestConsumer.sol";
 
 contract EverestConsumerTest is Test {
     EverestConsumer everestConsumer;
@@ -21,14 +22,16 @@ contract EverestConsumerTest is Test {
 
     address public USER = makeAddr("USER");
     address public BOB = makeAddr("BOB");
-    uint256 public constant STARTING_USER_BALANCE = 1000 ether; // 1000 LINK
+    address public REVEALER = makeAddr("REVEALER");
+    address public REVEALEE = makeAddr("REVEALEE");
+    uint256 public constant STARTING_USER_BALANCE = 1000 ether;
 
     function setUp() external {
         DeployEverestConsumer deployer = new DeployEverestConsumer();
         (everestConsumer, helperConfig) = deployer.run();
         (_link, _oracle, _jobId, _oraclePayment, _signUpURL) = helperConfig.activeNetworkConfig();
         vm.deal(USER, STARTING_USER_BALANCE);
-        ERC20Mock(_link).mint(USER, STARTING_USER_BALANCE);
+        // msg.sender has initial supply of link
     }
 
     function testConstructorPropertiesSetCorrectly() public {
@@ -136,6 +139,41 @@ contract EverestConsumerTest is Test {
         vm.startPrank(msg.sender);
         vm.expectRevert(EverestConsumer.EverestConsumer__IncorrectLength.selector);
         everestConsumer.setJobId("1");
+        vm.stopPrank();
+    }
+
+    ////////////////////////////
+    ///// statusToString //////
+    //////////////////////////
+
+    function testStatusToStringReturnsCorrectValue() public {
+        vm.startPrank(msg.sender);
+        assertEq(everestConsumer.statusToString(IEverestConsumer.Status(0)), "NOT_FOUND");
+        assertEq(everestConsumer.statusToString(IEverestConsumer.Status(1)), "KYC_USER");
+        assertEq(everestConsumer.statusToString(IEverestConsumer.Status(2)), "HUMAN_AND_UNIQUE");
+        vm.stopPrank();
+    }
+
+    ////////////////////////////////////
+    ///// getLatestSentRequestId //////
+    //////////////////////////////////
+
+    function testGetLatestSentRequestIdRevertsIfNoRequestsYet() public {
+        vm.startPrank(msg.sender);
+        vm.expectRevert(EverestConsumer.EverestConsumer__NoRequestsYet.selector);
+        everestConsumer.getLatestSentRequestId();
+        vm.stopPrank();
+    }
+
+    ////////////////////////////////////////
+    ///// getRequest + requestExists //////
+    //////////////////////////////////////
+
+    function testGetRequestRevertsIfRequestIdDoesntExist() public {
+        vm.startPrank(msg.sender);
+        assertEq(everestConsumer.requestExists(bytes32(abi.encodePacked("mocked"))), false);
+        vm.expectRevert(EverestConsumer.EverestConsumer__RequestDoesNotExist.selector);
+        everestConsumer.getRequest(bytes32(abi.encodePacked("mocked")));
         vm.stopPrank();
     }
 }
