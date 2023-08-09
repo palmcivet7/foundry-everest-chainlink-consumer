@@ -20,6 +20,7 @@ contract EverestConsumerTest is Test {
     string _signUpURL;
 
     address public USER = makeAddr("USER");
+    address public BOB = vm.addr(1);
     uint256 public constant STARTING_USER_BALANCE = 1000 ether; // 1000 LINK
 
     function setUp() external {
@@ -39,5 +40,23 @@ contract EverestConsumerTest is Test {
         assertEq(everestConsumer.oraclePayment(), _oraclePayment);
         assertEq(everestConsumer.linkAddress(), _link);
         assertEq(everestConsumer.signUpURL(), _signUpURL);
+    }
+
+    ///////////////////////
+    ///// setOracle //////
+    /////////////////////
+
+    function testSetOracleShouldSetProperlyWithOwnerSender() public {
+        vm.startPrank(msg.sender);
+        everestConsumer.setOracle(USER);
+        vm.stopPrank();
+        assertEq(everestConsumer.oracleAddress(), address(USER));
+    }
+
+    function testSetOracleShouldRevertIfSenderIsNotOwner() public {
+        vm.startPrank(USER);
+        vm.expectRevert("Ownable: caller is not the owner");
+        everestConsumer.setOracle(BOB);
+        vm.stopPrank();
     }
 }
