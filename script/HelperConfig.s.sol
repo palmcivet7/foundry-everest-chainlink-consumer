@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {ERC20Mock} from "@openzeppelin/contracts/mocks/ERC20Mock.sol";
+import {LinkToken} from "../test/mocks/LinkToken.sol";
 import {MockOracle} from "../test/mocks/MockOracle.sol";
 
 contract HelperConfig is Script {
@@ -49,7 +49,7 @@ contract HelperConfig is Script {
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         vm.startBroadcast();
-        ERC20Mock link = new ERC20Mock();
+        LinkToken link = new LinkToken();
         MockOracle oracle = new MockOracle(address(link));
         vm.stopBroadcast();
         return NetworkConfig({
