@@ -20,7 +20,7 @@ contract EverestConsumerTest is Test {
     string _signUpURL;
 
     address public USER = makeAddr("USER");
-    address public BOB = vm.addr(1);
+    address public BOB = makeAddr("BOB");
     uint256 public constant STARTING_USER_BALANCE = 1000 ether; // 1000 LINK
 
     function setUp() external {
@@ -57,6 +57,85 @@ contract EverestConsumerTest is Test {
         vm.startPrank(USER);
         vm.expectRevert("Ownable: caller is not the owner");
         everestConsumer.setOracle(BOB);
+        vm.stopPrank();
+    }
+
+    //////////////////////////////
+    ///// setOraclePayment //////
+    ////////////////////////////
+
+    function testSetOraclePaymentShouldSetProperlyWithOwnerSender() public {
+        vm.startPrank(msg.sender);
+        everestConsumer.setOraclePayment(1);
+        vm.stopPrank();
+        assertEq(everestConsumer.oraclePayment(), 1);
+    }
+
+    function testSetOraclePaymentShouldRevertIfSenderIsNotOwner() public {
+        vm.startPrank(USER);
+        vm.expectRevert("Ownable: caller is not the owner");
+        everestConsumer.setOraclePayment(1);
+        vm.stopPrank();
+    }
+
+    /////////////////////
+    ///// setLink //////
+    ///////////////////
+
+    function testSetLinkShouldSetProperlyWithOwnerSender() public {
+        vm.startPrank(msg.sender);
+        everestConsumer.setLink(BOB);
+        vm.stopPrank();
+        assertEq(everestConsumer.linkAddress(), address(BOB));
+    }
+
+    function testSetLinkShouldRevertIfSenderIsNotOwner() public {
+        vm.startPrank(USER);
+        vm.expectRevert("Ownable: caller is not the owner");
+        everestConsumer.setLink(BOB);
+        vm.stopPrank();
+    }
+
+    //////////////////////////////
+    ///// setSignUpURL //////////
+    ////////////////////////////
+
+    function testSetSignUpURLShouldSetProperlyWithOwnerSender() public {
+        vm.startPrank(msg.sender);
+        everestConsumer.setSignUpURL("https://wallet.everest.org");
+        vm.stopPrank();
+        assertEq(everestConsumer.signUpURL(), "https://wallet.everest.org");
+    }
+
+    function testSetSignUpURLShouldRevertIfSenderIsNotOwner() public {
+        vm.startPrank(USER);
+        vm.expectRevert("Ownable: caller is not the owner");
+        everestConsumer.setSignUpURL("https://wallet.everest.org");
+        vm.stopPrank();
+    }
+
+    //////////////////////
+    ///// setJobId //////
+    ////////////////////
+
+    function testSetJobIdShouldSetProperlyWithOwnerSender() public {
+        vm.startPrank(msg.sender);
+        everestConsumer.setJobId("7223acbd01654282865b678924126013");
+        vm.stopPrank();
+        assertEq(everestConsumer.jobId(), bytes32(abi.encodePacked("7223acbd01654282865b678924126013")));
+    }
+
+    function testSetJobIdShouldRevertIfSenderIsNotOwner() public {
+        vm.startPrank(USER);
+        vm.expectRevert("Ownable: caller is not the owner");
+        everestConsumer.setJobId("7223acbd01654282865b678924126013");
+        vm.stopPrank();
+    }
+
+    function testSetJobIdRevertsIfInvalidLength() public {
+        vm.startPrank(msg.sender);
+        vm.expectRevert(EverestConsumer.EverestConsumer__IncorrectLength.selector);
+        everestConsumer.setJobId("1");
         vm.stopPrank();
     }
 }
