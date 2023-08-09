@@ -9,7 +9,6 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
   - uses OpenZeppelin's ERC20Mock and Chainlink's MockOracle contracts for local testing
 - Rewrote tests in Solidity
   - checks for specific custom errors
-- Removed duplicate interface contracts
 
 ## Original README
 
