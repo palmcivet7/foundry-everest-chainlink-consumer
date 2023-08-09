@@ -4,11 +4,12 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
 
 ### Changes made:
 
-    - Restructured project from Truffle to Foundry
-    - Rewrote tests in Solidity
-      - checks for specific custom errors
-      - uses OpenZeppelin's ERC20Mock and Chainlink's MockOracle contracts
-    - Added HelperConfig script which automatically adds constructor arguments based on network (Polygon, Goerli, Localhost)
+- Restructured project from Truffle to Foundry
+- Added HelperConfig script which automatically adds constructor arguments based on network (Polygon, Goerli, Localhost)
+  - uses OpenZeppelin's ERC20Mock and Chainlink's MockOracle contracts for local testing
+- Rewrote tests in Solidity
+  - checks for specific custom errors
+- Removed duplicate interface contracts
 
 ## Original README
 
