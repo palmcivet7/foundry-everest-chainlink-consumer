@@ -9,10 +9,12 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../mocks/LinkToken.sol";
 import {IEverestConsumer} from "../../src/interfaces/IEverestConsumer.sol";
+import {Operator} from "../operator-mocks/Operator.sol";
 
 contract EverestConsumerTest is Test {
     EverestConsumer everestConsumer;
     HelperConfig helperConfig;
+    Operator operator;
 
     address _link;
     address _oracle;
@@ -219,6 +221,35 @@ contract EverestConsumerTest is Test {
         uint40 initialExpirationTime = everestConsumer.getRequest(requestId).expiration;
         uint40 requestCreationTime = uint40(block.timestamp);
         assertEq(initialExpirationTime, requestCreationTime + 5 minutes);
+        vm.stopPrank();
+    }
+
+    function testRequestShouldNotCancelIfCallerIsNotRevealer() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        vm.stopPrank();
+        vm.startPrank(BOB);
+        vm.expectRevert(EverestConsumer.EverestConsumer__NotOwnerOfRequest.selector);
+        everestConsumer.cancelRequest(requestId);
+        vm.stopPrank();
+    }
+
+    function testRequestShouldNotCancelIfRequestIsNotExpired() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        vm.expectRevert("Request is not expired");
+        everestConsumer.cancelRequest(requestId);
+        vm.stopPrank();
+    }
+
+    function testRequestShouldCancelAfterFiveMinutes() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        skip(300);
+        everestConsumer.cancelRequest(requestId);
         vm.stopPrank();
     }
 }
