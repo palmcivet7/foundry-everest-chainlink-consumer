@@ -10,6 +10,7 @@ contract MockOperator {
     LinkTokenInterface public linkToken; // instance of the LINK token
     mapping(bytes32 => bool) public processedRequests;
     bytes32 public currentRequestId;
+    bytes4 private currentCallbackFunctionId = bytes4(keccak256("fulfill(bytes32,uint8,uint40)"));
 
     struct Request {
         address sender;
@@ -38,7 +39,7 @@ contract MockOperator {
         requests[requestId] = Request({sender: _sender, payment: _payment, data: _data});
 
         // This is where we'll store the commitment
-        bytes31 paramsHash = _buildParamsHash(_payment, _sender, 0x0, block.timestamp + 5 minutes); // just an example, set the correct callbackFunc and expiration
+        bytes31 paramsHash = _buildParamsHash(_payment, _sender, currentCallbackFunctionId, block.timestamp + 5 minutes); // just an example, set the correct callbackFunc and expiration
         s_commitments[requestId] = Commitment(paramsHash);
 
         emit RequestReceived(requestId, _sender, _payment, _data);
@@ -67,7 +68,7 @@ contract MockOperator {
     function cancelOracleRequest(bytes32 requestId, uint256 payment, bytes4 callbackFunc, uint256 expiration)
         external
     {
-        bytes31 paramsHash = _buildParamsHash(payment, msg.sender, callbackFunc, expiration);
+        bytes32 paramsHash = _buildParamsHash(payment, msg.sender, callbackFunc, expiration);
         require(s_commitments[requestId].paramsHash == paramsHash, "Params do not match request ID");
         require(expiration <= block.timestamp, "Request is not expired");
 
