@@ -176,4 +176,57 @@ contract EverestConsumerTest is Test {
         everestConsumer.getRequest(bytes32(abi.encodePacked("mocked")));
         vm.stopPrank();
     }
+
+    /////////////////////////////////////////////////////
+    ///// requestStatus + fulfill + cancelRequest //////
+    ///////////////////////////////////////////////////
+
+    modifier fundLinkToRevealer() {
+        vm.startPrank(msg.sender);
+        LinkToken(_link).transfer(REVEALER, STARTING_USER_BALANCE);
+        vm.stopPrank();
+        _;
+    }
+
+    function testRequestStatusRevertsIfRevealeeIsZeroAddress() public fundLinkToRevealer {
+        vm.startPrank(REVEALER);
+        vm.expectRevert(EverestConsumer.EverestConsumer__RevealeeShouldNotBeZeroAddress.selector);
+        everestConsumer.requestStatus(0x0000000000000000000000000000000000000000);
+        vm.stopPrank();
+    }
+
+    function testRequestStatusShouldRevertIfNotEnoughAllowance() public fundLinkToRevealer {
+        vm.startPrank(REVEALER);
+        vm.expectRevert(); // "SafeERC20: low-level call failed." // Reverting for different reason to original test
+        everestConsumer.requestStatus(REVEALEE);
+        vm.stopPrank();
+    }
+
+    modifier fundLinkToRevealerAndApprove() {
+        vm.startPrank(msg.sender);
+        LinkToken(_link).transfer(REVEALER, STARTING_USER_BALANCE);
+        vm.stopPrank();
+        vm.startPrank(REVEALER);
+        LinkToken(_link).approve(address(everestConsumer), _oraclePayment);
+        vm.stopPrank();
+        _;
+    }
+
+    // modifier ifRequestStatusApproved() {
+    //     uint8 requestExpirationMinutes = 5;
+    //     string memory notFoundStatus = "0";
+    //     string memory kycUserStatus = "1";
+    //     string memory humanUniqueStatus = "2";
+    //     string memory nonZeroKycTimestamp = "1658845449";
+    //     string memory zeroKycTimestamp = "0";
+
+    //     // array[] responseTypes = ["uint8", "uint256"];
+    //     _;
+    // }
+
+    function testExpirationTimeShouldBeFiveMinsAfterRequest() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        skip(301); // skip 5 mins and 1 sec
+    }
 }
