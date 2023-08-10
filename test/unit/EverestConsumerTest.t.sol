@@ -212,21 +212,13 @@ contract EverestConsumerTest is Test {
         _;
     }
 
-    // modifier ifRequestStatusApproved() {
-    //     uint8 requestExpirationMinutes = 5;
-    //     string memory notFoundStatus = "0";
-    //     string memory kycUserStatus = "1";
-    //     string memory humanUniqueStatus = "2";
-    //     string memory nonZeroKycTimestamp = "1658845449";
-    //     string memory zeroKycTimestamp = "0";
-
-    //     // array[] responseTypes = ["uint8", "uint256"];
-    //     _;
-    // }
-
     function testExpirationTimeShouldBeFiveMinsAfterRequest() public fundLinkToRevealerAndApprove {
         vm.startPrank(REVEALER);
         everestConsumer.requestStatus(REVEALEE);
-        skip(301); // skip 5 mins and 1 sec
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        uint40 initialExpirationTime = everestConsumer.getRequest(requestId).expiration;
+        uint40 requestCreationTime = uint40(block.timestamp);
+        assertEq(initialExpirationTime, requestCreationTime + 5 minutes);
+        vm.stopPrank();
     }
 }
