@@ -17,7 +17,9 @@ contract DeployEverestConsumer is Script {
         EverestConsumer everestConsumer = new EverestConsumer(
             _link, _oracle, _jobId, _oraclePayment, _signUpURL
         );
-        MockOperator(_oracle).setConsumerAddress(address(everestConsumer)); // Set EverestConsumer address in MockOperator
+        if (helperConfig.usedAnvilEthConfig()) {
+            MockOperator(_oracle).setConsumerAddress(address(everestConsumer)); // Set EverestConsumer address in MockOperator only if getOrCreateAnvilEthConfig was used.
+        }
         vm.stopBroadcast();
 
         return (everestConsumer, helperConfig);

@@ -16,6 +16,7 @@ contract HelperConfig is Script {
     }
 
     NetworkConfig public activeNetworkConfig;
+    bool public usedAnvilEthConfig = false;
 
     constructor() {
         if (block.chainid == 137) {
@@ -48,6 +49,7 @@ contract HelperConfig is Script {
     }
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
+        usedAnvilEthConfig = true;
         vm.startBroadcast();
         LinkToken link = new LinkToken();
         MockOperator oracle = new MockOperator(address(link));
