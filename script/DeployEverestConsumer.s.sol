@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 import {Script} from "forge-std/Script.sol";
 import {EverestConsumer} from "../src/EverestConsumer.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
+import {MockOperator} from "../test/mocks/MockOperator.sol";
 
 contract DeployEverestConsumer is Script {
     function run() external returns (EverestConsumer, HelperConfig) {
@@ -16,6 +17,7 @@ contract DeployEverestConsumer is Script {
         EverestConsumer everestConsumer = new EverestConsumer(
             _link, _oracle, _jobId, _oraclePayment, _signUpURL
         );
+        MockOperator(_oracle).setConsumerAddress(address(everestConsumer)); // Set EverestConsumer address in MockOperator
         vm.stopBroadcast();
 
         return (everestConsumer, helperConfig);
