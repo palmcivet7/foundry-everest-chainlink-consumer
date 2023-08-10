@@ -9,12 +9,10 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../mocks/LinkToken.sol";
 import {IEverestConsumer} from "../../src/interfaces/IEverestConsumer.sol";
-import {Operator} from "../operator-mocks/Operator.sol";
 
 contract EverestConsumerTest is Test {
     EverestConsumer everestConsumer;
     HelperConfig helperConfig;
-    Operator operator;
 
     address _link;
     address _oracle;
