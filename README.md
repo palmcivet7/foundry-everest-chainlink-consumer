@@ -6,7 +6,6 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
 
 - Restructured project from Truffle to Foundry
 - Added HelperConfig script which automatically adds constructor arguments depending on network (Polygon, Goerli, Localhost) based on [Network Details, page 8](https://static-assets.everest.org/web/images/HowToSetupAndUseTheEverestChainlinkService.pdf).
-  - uses OpenZeppelin's ERC20Mock and Chainlink's MockOracle contracts for local testing
 - Rewrote tests in Solidity
   - checks for specific custom errors
 
