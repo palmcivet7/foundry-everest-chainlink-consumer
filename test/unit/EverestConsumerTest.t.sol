@@ -206,6 +206,7 @@ contract EverestConsumerTest is Test {
         vm.startPrank(msg.sender);
         LinkToken(_link).transfer(REVEALER, STARTING_USER_BALANCE);
         vm.stopPrank();
+        vm.deal(REVEALER, STARTING_USER_BALANCE);
         vm.startPrank(REVEALER);
         LinkToken(_link).approve(address(everestConsumer), _oraclePayment);
         vm.stopPrank();
@@ -248,6 +249,7 @@ contract EverestConsumerTest is Test {
         bytes32 requestId = everestConsumer.getLatestSentRequestId();
         skip(300);
         everestConsumer.cancelRequest(requestId);
+        assertEq(everestConsumer.getRequest(requestId).isCanceled, true);
         vm.stopPrank();
     }
 }
