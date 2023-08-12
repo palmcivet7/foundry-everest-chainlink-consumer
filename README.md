@@ -10,7 +10,7 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
   - checks for specific custom errors
 - Copy Operator.sol and all relevant imports from Chainlink to test/operator-mocks
   - increase compiler version to 0.8.19
-  - NOTE: Operator function calls reverting with `EvmError: Revert` - possible because of incompatible compiler?
+  - NOTE: Operator function calls during tests reverting with `EvmError: Revert` - possible because of incompatible compiler?
 
 ## Original README
 
