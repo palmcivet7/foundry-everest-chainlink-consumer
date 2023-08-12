@@ -8,6 +8,9 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
 - Added HelperConfig script which automatically adds constructor arguments depending on network (Polygon, Goerli, Localhost) based on [Network Details, page 8](https://static-assets.everest.org/web/images/HowToSetupAndUseTheEverestChainlinkService.pdf).
 - Rewrote tests in Solidity
   - checks for specific custom errors
+- Copy Operator.sol and all relevant imports from Chainlink to test/operator-mocks
+  - increase compiler version to 0.8.19
+  - NOTE: Operator function calls reverting with `EvmError: Revert` - possible because of incompatible compiler?
 
 ## Original README
 
