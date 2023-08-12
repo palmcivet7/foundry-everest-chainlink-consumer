@@ -18,7 +18,10 @@ contract DeployEverestConsumer is Script {
             _link, _oracle, _jobId, _oraclePayment, _signUpURL
         );
         if (helperConfig.usedAnvilEthConfig()) {
-            MockOperator(_oracle).setConsumerAddress(address(everestConsumer)); // Set EverestConsumer address in MockOperator only if getOrCreateAnvilEthConfig was used.
+            MockOperator(_oracle).setConsumerAddress(address(everestConsumer));
+            address[] memory authorizedSenders = new address[](1);
+            authorizedSenders[0] = msg.sender;
+            MockOperator(_oracle).setAuthorizedSenders(authorizedSenders);
         }
         vm.stopBroadcast();
 
