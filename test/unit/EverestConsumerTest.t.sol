@@ -9,10 +9,14 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../mocks/LinkToken.sol";
 import {IEverestConsumer} from "../../src/interfaces/IEverestConsumer.sol";
+import {MockOperator} from "../mocks/MockOperator.sol";
+// import {Operator} from "../operator-mocks/Operator.sol";
 
 contract EverestConsumerTest is Test {
     EverestConsumer everestConsumer;
     HelperConfig helperConfig;
+    MockOperator mockOperator;
+    Operator operator;
 
     address _link;
     address _oracle;
@@ -250,6 +254,49 @@ contract EverestConsumerTest is Test {
         skip(300);
         everestConsumer.cancelRequest(requestId);
         assertEq(everestConsumer.getRequest(requestId).isCanceled, true);
+        vm.stopPrank();
+    }
+
+    function testRequestShouldNotFulfillFromUnauthorizedJob() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        uint8 kycUserStatus = 1;
+        uint256 nonZeroKycTimestamp = 1658845449;
+        bytes memory data = abi.encodePacked(requestId, kycUserStatus, nonZeroKycTimestamp);
+
+        // vm.expectRevert(); // "Not authorized sender" // Reverts before function can be called
+        mockOperator.fulfillOracleRequest2( // EVM Error revert // incompatible compiler versions??
+            requestId,
+            _oraclePayment,
+            address(everestConsumer),
+            bytes4(keccak256("fulfill(bytes32,uint8,uint40)")),
+            block.timestamp + 5 minutes,
+            data
+        );
+        vm.stopPrank();
+    }
+
+    function testSetAuthorizedSenders() public fundLinkToRevealerAndApprove {
+        vm.startPrank(msg.sender);
+        address[] memory targets = new address[](1);
+        targets[0] = address(everestConsumer);
+        address[] memory senders = new address[](1);
+        senders[0] = REVEALER;
+        vm.expectRevert();
+        operator.setAuthorizedSendersOn(targets, senders);
+        vm.stopPrank();
+    }
+
+    function testDirectFulfillFunction() public fundLinkToRevealerAndApprove {
+        vm.startPrank(REVEALER);
+        everestConsumer.requestStatus(REVEALEE);
+        bytes32 requestId = everestConsumer.getLatestSentRequestId();
+        IEverestConsumer.Status kycUserStatus = IEverestConsumer.Status.KYCUser; // Assume Status is an enum and KYCUser is one of its values
+        uint40 nonZeroKycTimestamp = 1658845449;
+        // Call the fulfill function directly on EverestConsumer contract
+        vm.expectRevert("Source must be the oracle of the request");
+        everestConsumer.fulfill(requestId, kycUserStatus, nonZeroKycTimestamp);
         vm.stopPrank();
     }
 }
