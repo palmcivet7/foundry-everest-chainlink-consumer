@@ -9,13 +9,13 @@ import {HelperConfig} from "../../script/HelperConfig.s.sol";
 import {Vm} from "forge-std/Vm.sol";
 import {LinkToken} from "../mocks/LinkToken.sol";
 import {IEverestConsumer} from "../../src/interfaces/IEverestConsumer.sol";
-import {MockOperator} from "../mocks/MockOperator.sol";
-// import {Operator} from "../operator-mocks/Operator.sol";
+// import {MockOperator} from "../mocks/MockOperator.sol";
+import {Operator} from "../operator-mocks/Operator.sol";
 
 contract EverestConsumerTest is Test {
     EverestConsumer everestConsumer;
     HelperConfig helperConfig;
-    MockOperator mockOperator;
+    // MockOperator mockOperator;
     Operator operator;
 
     address _link;
@@ -266,7 +266,7 @@ contract EverestConsumerTest is Test {
         bytes memory data = abi.encodePacked(requestId, kycUserStatus, nonZeroKycTimestamp);
 
         // vm.expectRevert(); // "Not authorized sender" // Reverts before function can be called
-        mockOperator.fulfillOracleRequest2( // EVM Error revert // incompatible compiler versions??
+        operator.fulfillOracleRequest2( // EVM Error revert // incompatible compiler versions??
             requestId,
             _oraclePayment,
             address(everestConsumer),

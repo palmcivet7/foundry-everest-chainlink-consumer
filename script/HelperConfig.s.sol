@@ -4,8 +4,8 @@ pragma solidity 0.8.19;
 
 import {Script} from "forge-std/Script.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
-import {MockOperator} from "../test/mocks/MockOperator.sol";
-// import {Operator} from "../test/operator-mocks/Operator.sol";
+// import {MockOperator} from "../test/mocks/MockOperator.sol";
+import {Operator} from "../test/operator-mocks/Operator.sol";
 
 contract HelperConfig is Script {
     struct NetworkConfig {
@@ -53,8 +53,8 @@ contract HelperConfig is Script {
         usedAnvilEthConfig = true;
         vm.startBroadcast();
         LinkToken link = new LinkToken();
-        MockOperator oracle = new MockOperator(address(link));
-        // Operator oracle = new Operator(address(link), msg.sender);
+        // MockOperator oracle = new MockOperator(address(link));
+        Operator oracle = new Operator(address(link), msg.sender);
         vm.stopBroadcast();
         return NetworkConfig({
             _link: address(link),

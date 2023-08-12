@@ -17,12 +17,12 @@ contract DeployEverestConsumer is Script {
         EverestConsumer everestConsumer = new EverestConsumer(
             _link, _oracle, _jobId, _oraclePayment, _signUpURL
         );
-        if (helperConfig.usedAnvilEthConfig()) {
-            MockOperator(_oracle).setConsumerAddress(address(everestConsumer));
-            address[] memory authorizedSenders = new address[](1);
-            authorizedSenders[0] = msg.sender;
-            MockOperator(_oracle).setAuthorizedSenders(authorizedSenders);
-        }
+        // if (helperConfig.usedAnvilEthConfig()) {
+        //     MockOperator(_oracle).setConsumerAddress(address(everestConsumer));
+        //     address[] memory authorizedSenders = new address[](1);
+        //     authorizedSenders[0] = msg.sender;
+        //     MockOperator(_oracle).setAuthorizedSenders(authorizedSenders);
+        // }
         vm.stopBroadcast();
 
         return (everestConsumer, helperConfig);
