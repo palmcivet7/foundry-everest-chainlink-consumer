@@ -12,6 +12,8 @@ This project is a fork of [everest-chainlink-consumer](https://github.com/EverID
   - increase compiler version to 0.8.19
   - NOTE: Operator function calls during tests reverting with `EvmError: Revert` - possible because of incompatible compiler?
 
+_Important Note: The unit tests for this project are unfinished due to the `EvmError: Revert` mentioned above. Please see [the hardhat version of this project](https://github.com/palmcivet7/hardhat-everest-chainlink-consumer) for completed unit tests._
+
 ## Original README
 
 Consumer contract & chainlink job & external adapter for KYC data.
